@@ -45,7 +45,7 @@ sysinfo.txt
 **/*.app
 
 # Crashlytics generated file
-crashlytics-build.properties
+**/crashlytics-build.properties
 
 # Dirección de assets en Addressables
 **/Assets/AddressableAssetsData/*/*.bin*
