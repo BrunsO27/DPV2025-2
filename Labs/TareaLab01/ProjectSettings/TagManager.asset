@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Muro
+  - Enemigo
   layers:
   - Default
   - TransparentFX
