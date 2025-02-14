@@ -11,8 +11,8 @@
 
 # Ignorar carpetas y archivos de JetBrains Rider y Visual Studio
 **/Assets/Plugins/Editor/JetBrains*
-.vs/
-.gradle/
+**/.vs/
+**/.gradle/
 
 # Archivos generados por proyectos de VS, MD, Consulo, etc.
 **/ExportedObj/
