@@ -6,7 +6,6 @@ TagManager:
   tags:
   - Muro
   - Enemigo
-  - Objetivo
   layers:
   - Default
   - TransparentFX
