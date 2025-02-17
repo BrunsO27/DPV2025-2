@@ -22,10 +22,6 @@ public class Movimiento : MonoBehaviour
         if (collision.gameObject.tag == "Muro")
         {
             velocidad *= -1;
-        } 
-
-        if (collision.gameObject.tag == "Player") {
-            Destroy(collision.gameObject);
-        }
+        }      
     }
 }
