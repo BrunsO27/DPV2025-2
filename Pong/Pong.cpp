@@ -5,12 +5,18 @@
 
 double ball_x, ball_y, ball_dir_x, ball_dir_y;
 double sx, sy, squash;
-const double ball_radius = 15.0;
-const double speed = 1.0;
+double ball_radius;
+double speed;
 int window_width = 320;
 int window_height = 240;
 bool is_colliding = false;
 int collision_timer = 0;
+
+// Variables para las paletas
+double paddle1_y, paddle2_y;
+double paddle_width;
+double paddle_height;
+const double paddle_margin = 20.0; // Distancia constante desde el borde de la ventana
 
 void draw_ball() {
     glColor3f(0.6, 0.3, 0.0);
@@ -26,11 +32,25 @@ void draw_ball() {
     glPopMatrix();
 }
 
+void draw_paddle(double x, double y) {
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_QUADS);
+    glVertex2f(x - paddle_width / 2, y - paddle_height / 2);
+    glVertex2f(x + paddle_width / 2, y - paddle_height / 2);
+    glVertex2f(x + paddle_width / 2, y + paddle_height / 2);
+    glVertex2f(x - paddle_width / 2, y + paddle_height / 2);
+    glEnd();
+}
+
 void Display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Dibujar la pelota
     draw_ball();
+
+    // Dibujar las paletas
+    draw_paddle(paddle_margin, paddle1_y); // Paleta del jugador 1
+    draw_paddle(window_width - paddle_margin, paddle2_y); // Paleta del jugador 2
 
     // Colisiones con las paredes
     if (ball_y + ball_radius * sy > window_height || ball_y - ball_radius * sy < 0) {
@@ -79,8 +99,24 @@ void Display(void) {
 
 void update(int value) {
     // Actualizar la posición de la pelota
-    ball_x += ball_dir_x * speed;
-    ball_y += ball_dir_y * speed;
+    ball_x += ball_dir_x * speed * (window_width / 320.0);
+    ball_y += ball_dir_y * speed * (window_height / 240.0);
+
+    // Asegurarse de que la pelota se mantenga dentro de los límites
+    if (ball_x - ball_radius < 0) {
+        ball_x = ball_radius;
+        ball_dir_x = -ball_dir_x;
+    } else if (ball_x + ball_radius > window_width) {
+        ball_x = window_width - ball_radius;
+        ball_dir_x = -ball_dir_x;
+    }
+    if (ball_y - ball_radius < 0) {
+        ball_y = ball_radius;
+        ball_dir_y = -ball_dir_y;
+    } else if (ball_y + ball_radius > window_height) {
+        ball_y = window_height - ball_radius;
+        ball_dir_y = -ball_dir_y;
+    }
 
     glutPostRedisplay();
     glutTimerFunc(16, update, 0); // Llamar a update cada 16 ms (~60 FPS)
@@ -95,6 +131,17 @@ void reshape(int w, int h) {
     gluOrtho2D(0.0, w, 0.0, h);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    // Ajustar las dimensiones de las paletas
+    paddle_width = window_width * 0.03; // 3% del ancho de la ventana
+    paddle_height = window_height * 0.25; // 25% de la altura de la ventana
+
+    // Ajustar el radio de la pelota
+    ball_radius = window_width * 0.02; // 2% del ancho de la ventana
+
+    // Ajustar las posiciones de las paletas
+    paddle1_y = window_height / 2;
+    paddle2_y = window_height / 2;
 }
 
 void init(void) {
@@ -106,13 +153,25 @@ void init(void) {
     sx = 1.0;
     sy = 1.0;
     squash = 0.9;
+    speed = 1.0;
+
+    // Inicializar las posiciones de las paletas
+    paddle1_y = window_height / 2;
+    paddle2_y = window_height / 2;
+
+    // Inicializar las dimensiones de las paletas
+    paddle_width = window_width * 0.03; // 3% del ancho de la ventana
+    paddle_height = window_height * 0.25; // 25% de la altura de la ventana
+
+    // Inicializar el radio de la pelota
+    ball_radius = window_width * 0.02; // 2% del ancho de la ventana
 }
 
 int main(int argc, char* argv[]) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(window_width, window_height);
-    glutCreateWindow("Bouncing Ball");
+    glutCreateWindow("Pong");
     init();
     glutDisplayFunc(Display);
     glutReshapeFunc(reshape);
