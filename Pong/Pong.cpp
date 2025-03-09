@@ -17,6 +17,7 @@ double paddle1_y, paddle2_y;
 double paddle_width;
 double paddle_height;
 const double paddle_margin = 20.0; // Distancia constante desde el borde de la ventana
+const double paddle_speed = 10.0; // Velocidad de movimiento de las paletas
 
 void draw_ball() {
     glColor3f(0.6, 0.3, 0.0);
@@ -99,8 +100,8 @@ void Display(void) {
 
 void update(int value) {
     // Actualizar la posición de la pelota
-    ball_x += ball_dir_x * speed * (window_width / 320.0);
-    ball_y += ball_dir_y * speed * (window_height / 240.0);
+    ball_x += ball_dir_x * speed;
+    ball_y += ball_dir_y * speed;
 
     // Asegurarse de que la pelota se mantenga dentro de los límites
     if (ball_x - ball_radius < 0) {
@@ -167,6 +168,42 @@ void init(void) {
     ball_radius = window_width * 0.02; // 2% del ancho de la ventana
 }
 
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+        case 'w':
+            paddle1_y += paddle_speed;
+            if (paddle1_y + paddle_height / 2 > window_height) {
+                paddle1_y = window_height - paddle_height / 2;
+            }
+            break;
+        case 's':
+            paddle1_y -= paddle_speed;
+            if (paddle1_y - paddle_height / 2 < 0) {
+                paddle1_y = paddle_height / 2;
+            }
+            break;
+    }
+    glutPostRedisplay();
+}
+
+void specialKeys(int key, int x, int y) {
+    switch (key) {
+        case GLUT_KEY_UP:
+            paddle2_y += paddle_speed;
+            if (paddle2_y + paddle_height / 2 > window_height) {
+                paddle2_y = window_height - paddle_height / 2;
+            }
+            break;
+        case GLUT_KEY_DOWN:
+            paddle2_y -= paddle_speed;
+            if (paddle2_y - paddle_height / 2 < 0) {
+                paddle2_y = paddle_height / 2;
+            }
+            break;
+    }
+    glutPostRedisplay();
+}
+
 int main(int argc, char* argv[]) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -175,6 +212,8 @@ int main(int argc, char* argv[]) {
     init();
     glutDisplayFunc(Display);
     glutReshapeFunc(reshape);
+    glutKeyboardFunc(keyboard);
+    glutSpecialFunc(specialKeys);
     glutTimerFunc(16, update, 0); // Iniciar el temporizador
     glutMainLoop();
     return 0;
