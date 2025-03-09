@@ -19,6 +19,12 @@ double paddle_height;
 const double paddle_margin = 20.0; // Distancia constante desde el borde de la ventana
 const double paddle_speed = 10.0; // Velocidad de movimiento de las paletas
 
+// Estado de las teclas
+bool key_w = false;
+bool key_s = false;
+bool key_up = false;
+bool key_down = false;
+
 void draw_ball() {
     glColor3f(0.6, 0.3, 0.0);
     glPushMatrix();
@@ -119,6 +125,32 @@ void update(int value) {
         ball_dir_y = -ball_dir_y;
     }
 
+    // Mover las paletas
+    if (key_w) {
+        paddle1_y += paddle_speed;
+        if (paddle1_y + paddle_height / 2 > window_height) {
+            paddle1_y = window_height - paddle_height / 2;
+        }
+    }
+    if (key_s) {
+        paddle1_y -= paddle_speed;
+        if (paddle1_y - paddle_height / 2 < 0) {
+            paddle1_y = paddle_height / 2;
+        }
+    }
+    if (key_up) {
+        paddle2_y += paddle_speed;
+        if (paddle2_y + paddle_height / 2 > window_height) {
+            paddle2_y = window_height - paddle_height / 2;
+        }
+    }
+    if (key_down) {
+        paddle2_y -= paddle_speed;
+        if (paddle2_y - paddle_height / 2 < 0) {
+            paddle2_y = paddle_height / 2;
+        }
+    }
+
     glutPostRedisplay();
     glutTimerFunc(16, update, 0); // Llamar a update cada 16 ms (~60 FPS)
 }
@@ -171,37 +203,45 @@ void init(void) {
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
         case 'w':
-            paddle1_y += paddle_speed;
-            if (paddle1_y + paddle_height / 2 > window_height) {
-                paddle1_y = window_height - paddle_height / 2;
-            }
+            key_w = true;
             break;
         case 's':
-            paddle1_y -= paddle_speed;
-            if (paddle1_y - paddle_height / 2 < 0) {
-                paddle1_y = paddle_height / 2;
-            }
+            key_s = true;
             break;
     }
-    glutPostRedisplay();
+}
+
+void keyboardUp(unsigned char key, int x, int y) {
+    switch (key) {
+        case 'w':
+            key_w = false;
+            break;
+        case 's':
+            key_s = false;
+            break;
+    }
 }
 
 void specialKeys(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_UP:
-            paddle2_y += paddle_speed;
-            if (paddle2_y + paddle_height / 2 > window_height) {
-                paddle2_y = window_height - paddle_height / 2;
-            }
+            key_up = true;
             break;
         case GLUT_KEY_DOWN:
-            paddle2_y -= paddle_speed;
-            if (paddle2_y - paddle_height / 2 < 0) {
-                paddle2_y = paddle_height / 2;
-            }
+            key_down = true;
             break;
     }
-    glutPostRedisplay();
+}
+
+void specialKeysUp(int key, int x, int y) {
+    switch (key) {
+        case GLUT_KEY_UP:
+            key_up = false;
+            break;
+        case GLUT_KEY_DOWN:
+            key_down = false;
+            break;
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -213,7 +253,9 @@ int main(int argc, char* argv[]) {
     glutDisplayFunc(Display);
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
+    glutKeyboardUpFunc(keyboardUp);
     glutSpecialFunc(specialKeys);
+    glutSpecialUpFunc(specialKeysUp);
     glutTimerFunc(16, update, 0); // Iniciar el temporizador
     glutMainLoop();
     return 0;
