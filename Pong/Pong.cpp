@@ -4,19 +4,26 @@
 #define PI 3.1415926535898
 
 double ball_x, ball_y, ball_dir_x, ball_dir_y;
+double sx, sy, squash;
 const double ball_radius = 15.0;
-const double speed = 0.5;
+const double speed = 1.0;
 int window_width = 320;
 int window_height = 240;
+bool is_colliding = false;
+int collision_timer = 0;
 
 void draw_ball() {
     glColor3f(0.6, 0.3, 0.0);
+    glPushMatrix();
+    glTranslatef(ball_x, ball_y, 0);
+    glScalef(sx, sy, 1.0);
     glBegin(GL_POLYGON);
     for (int i = 0; i < 100; i++) {
         double angle = 2 * PI * i / 100;
-        glVertex2f(ball_x + ball_radius * cos(angle), ball_y + ball_radius * sin(angle));
+        glVertex2f(ball_radius * cos(angle), ball_radius * sin(angle));
     }
     glEnd();
+    glPopMatrix();
 }
 
 void Display(void) {
@@ -26,11 +33,45 @@ void Display(void) {
     draw_ball();
 
     // Colisiones con las paredes
-    if (ball_y + ball_radius > window_height || ball_y - ball_radius < 0) {
+    if (ball_y + ball_radius * sy > window_height || ball_y - ball_radius * sy < 0) {
         ball_dir_y = -ball_dir_y;
+        sy = sy * squash;
+        if (sy < 0.8) {
+            squash = 1.1;
+        } else if (sy > 1.0) {
+            sy = 1.0;
+            squash = 0.9;
+        }
+        sx = 1.0 / sy;
+        is_colliding = true;
+        collision_timer = 0;
     }
-    if (ball_x + ball_radius > window_width || ball_x - ball_radius < 0) {
+    if (ball_x + ball_radius * sx > window_width || ball_x - ball_radius * sx < 0) {
         ball_dir_x = -ball_dir_x;
+        sx = sx * squash;
+        if (sx < 0.8) {
+            squash = 1.1;
+        } else if (sx > 1.0) {
+            sx = 1.0;
+            squash = 0.9;
+        }
+        sy = 1.0 / sx;
+        is_colliding = true;
+        collision_timer = 0;
+    }
+
+    // Restaurar la escala de la pelota rápidamente
+    if (is_colliding) {
+        collision_timer++;
+        if (collision_timer > 5) { // Ajusta este valor para controlar la duración de la transición
+            sx += (1.0 - sx) * 0.5;
+            sy += (1.0 - sy) * 0.5;
+            if (fabs(sx - 1.0) < 0.01 && fabs(sy - 1.0) < 0.01) {
+                sx = 1.0;
+                sy = 1.0;
+                is_colliding = false;
+            }
+        }
     }
 
     glutSwapBuffers();
@@ -62,6 +103,9 @@ void init(void) {
     ball_y = window_height / 2;
     ball_dir_x = 1;
     ball_dir_y = 1;
+    sx = 1.0;
+    sy = 1.0;
+    squash = 0.9;
 }
 
 int main(int argc, char* argv[]) {
