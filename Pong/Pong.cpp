@@ -1,5 +1,6 @@
 #include <GL/glut.h>
 #include <math.h>
+#include <string>
 
 #define PI 3.1415926535898
 
@@ -12,6 +13,8 @@ int window_height = 480; // Tamaño de ventana adecuado
 bool is_colliding = false;
 int collision_timer = 0;
 bool is_paused = false; // Variable de estado para pausar el movimiento de la pelota
+int score_left = 0; // Puntuación de la paleta izquierda
+int score_right = 0; // Puntuación de la paleta derecha
 
 // Variables para las paletas
 double paddle1_y, paddle2_y;
@@ -50,6 +53,14 @@ void draw_paddle(double x, double y) {
     glEnd();
 }
 
+void draw_text(const char* text, int x, int y) {
+    glRasterPos2i(x, y);
+    while (*text) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *text); // Fuente más grande
+        text++;
+    }
+}
+
 void Display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -59,6 +70,18 @@ void Display(void) {
     // Dibujar las paletas
     draw_paddle(paddle_margin, paddle1_y); // Paleta del jugador 1
     draw_paddle(window_width - paddle_margin, paddle2_y); // Paleta del jugador 2
+
+    // Dibujar la puntuación de la paleta izquierda
+    std::string score_text_left = std::to_string(score_left);
+    int text_width_left = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)score_text_left.c_str());
+    int text_x_left = (window_width / 4) - (text_width_left / 2); // Centrar en la mitad izquierda
+    draw_text(score_text_left.c_str(), text_x_left, window_height - 30);
+
+    // Dibujar la puntuación de la paleta derecha
+    std::string score_text_right = std::to_string(score_right);
+    int text_width_right = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)score_text_right.c_str());
+    int text_x_right = (3 * window_width / 4) - (text_width_right / 2); // Centrar en la mitad derecha
+    draw_text(score_text_right.c_str(), text_x_right, window_height - 30);
 
     // Colisiones con las paredes
     if (ball_y + ball_radius * sy > window_height || ball_y - ball_radius * sy < 0) {
@@ -131,7 +154,8 @@ void update(int value) {
             ball_x = window_width / 2;
             ball_y = window_height / 2;
             is_paused = true;
-            speed = 1.0; // Reiniciar la velocidad de la pelota
+            speed = 2.0; // Reiniciar la velocidad de la pelota
+            score_right++; // Incrementar la puntuación de la paleta derecha
         }
 
         if (ball_x + ball_radius > window_width - paddle_margin - paddle_width / 2 &&
@@ -144,7 +168,8 @@ void update(int value) {
             ball_x = window_width / 2;
             ball_y = window_height / 2;
             is_paused = true;
-            speed = 1.0; // Reiniciar la velocidad de la pelota
+            speed = 2.0; // Reiniciar la velocidad de la pelota
+            score_left++; // Incrementar la puntuación de la paleta izquierda
         }
 
         // Mover las paletas
