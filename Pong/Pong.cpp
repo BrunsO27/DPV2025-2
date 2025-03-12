@@ -11,6 +11,7 @@ int window_width = 320;
 int window_height = 240;
 bool is_colliding = false;
 int collision_timer = 0;
+bool is_paused = false; // Variable de estado para pausar el movimiento de la pelota
 
 // Variables para las paletas
 double paddle1_y, paddle2_y;
@@ -105,49 +106,67 @@ void Display(void) {
 }
 
 void update(int value) {
-    // Actualizar la posición de la pelota
-    ball_x += ball_dir_x * speed;
-    ball_y += ball_dir_y * speed;
+    if (!is_paused) {
+        // Actualizar la posición de la pelota
+        ball_x += ball_dir_x * speed;
+        ball_y += ball_dir_y * speed;
 
-    // Asegurarse de que la pelota se mantenga dentro de los límites
-    if (ball_x - ball_radius < 0) {
-        ball_x = ball_radius;
-        ball_dir_x = -ball_dir_x;
-    } else if (ball_x + ball_radius > window_width) {
-        ball_x = window_width - ball_radius;
-        ball_dir_x = -ball_dir_x;
-    }
-    if (ball_y - ball_radius < 0) {
-        ball_y = ball_radius;
-        ball_dir_y = -ball_dir_y;
-    } else if (ball_y + ball_radius > window_height) {
-        ball_y = window_height - ball_radius;
-        ball_dir_y = -ball_dir_y;
-    }
+        // Asegurarse de que la pelota se mantenga dentro de los límites
+        if (ball_y - ball_radius < 0) {
+            ball_y = ball_radius;
+            ball_dir_y = -ball_dir_y;
+        } else if (ball_y + ball_radius > window_height) {
+            ball_y = window_height - ball_radius;
+            ball_dir_y = -ball_dir_y;
+        }
 
-    // Mover las paletas
-    if (key_w) {
-        paddle1_y += paddle_speed;
-        if (paddle1_y + paddle_height / 2 > window_height) {
-            paddle1_y = window_height - paddle_height / 2;
+        // Colisiones con las paletas
+        if (ball_x - ball_radius < paddle_margin + paddle_width / 2 &&
+            ball_y > paddle1_y - paddle_height / 2 &&
+            ball_y < paddle1_y + paddle_height / 2) {
+            ball_dir_x = -ball_dir_x;
+        } else if (ball_x - ball_radius < 0) {
+            // La pelota pasó la paleta del jugador 1
+            ball_x = window_width / 2;
+            ball_y = window_height / 2;
+            is_paused = true;
         }
-    }
-    if (key_s) {
-        paddle1_y -= paddle_speed;
-        if (paddle1_y - paddle_height / 2 < 0) {
-            paddle1_y = paddle_height / 2;
+
+        if (ball_x + ball_radius > window_width - paddle_margin - paddle_width / 2 &&
+            ball_y > paddle2_y - paddle_height / 2 &&
+            ball_y < paddle2_y + paddle_height / 2) {
+            ball_dir_x = -ball_dir_x;
+        } else if (ball_x + ball_radius > window_width) {
+            // La pelota pasó la paleta del jugador 2
+            ball_x = window_width / 2;
+            ball_y = window_height / 2;
+            is_paused = true;
         }
-    }
-    if (key_up) {
-        paddle2_y += paddle_speed;
-        if (paddle2_y + paddle_height / 2 > window_height) {
-            paddle2_y = window_height - paddle_height / 2;
+
+        // Mover las paletas
+        if (key_w) {
+            paddle1_y += paddle_speed;
+            if (paddle1_y + paddle_height / 2 > window_height) {
+                paddle1_y = window_height - paddle_height / 2;
+            }
         }
-    }
-    if (key_down) {
-        paddle2_y -= paddle_speed;
-        if (paddle2_y - paddle_height / 2 < 0) {
-            paddle2_y = paddle_height / 2;
+        if (key_s) {
+            paddle1_y -= paddle_speed;
+            if (paddle1_y - paddle_height / 2 < 0) {
+                paddle1_y = paddle_height / 2;
+            }
+        }
+        if (key_up) {
+            paddle2_y += paddle_speed;
+            if (paddle2_y + paddle_height / 2 > window_height) {
+                paddle2_y = window_height - paddle_height / 2;
+            }
+        }
+        if (key_down) {
+            paddle2_y -= paddle_speed;
+            if (paddle2_y - paddle_height / 2 < 0) {
+                paddle2_y = paddle_height / 2;
+            }
         }
     }
 
@@ -207,6 +226,13 @@ void keyboard(unsigned char key, int x, int y) {
             break;
         case 's':
             key_s = true;
+            break;
+        case ' ':
+            if (is_paused) {
+                is_paused = false;
+                ball_dir_x = (rand() % 2 == 0) ? 1 : -1; // Dirección aleatoria
+                ball_dir_y = (rand() % 2 == 0) ? 1 : -1; // Dirección aleatoria
+            }
             break;
     }
 }
