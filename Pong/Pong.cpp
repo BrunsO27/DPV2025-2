@@ -7,8 +7,8 @@ double ball_x, ball_y, ball_dir_x, ball_dir_y;
 double sx, sy, squash;
 double ball_radius;
 double speed;
-int window_width = 320;
-int window_height = 240;
+int window_width = 640; // Tamaño de ventana adecuado
+int window_height = 480; // Tamaño de ventana adecuado
 bool is_colliding = false;
 int collision_timer = 0;
 bool is_paused = false; // Variable de estado para pausar el movimiento de la pelota
@@ -125,22 +125,26 @@ void update(int value) {
             ball_y > paddle1_y - paddle_height / 2 &&
             ball_y < paddle1_y + paddle_height / 2) {
             ball_dir_x = -ball_dir_x;
+            speed += 0.5; // Incrementar la velocidad de la pelota
         } else if (ball_x - ball_radius < 0) {
             // La pelota pasó la paleta del jugador 1
             ball_x = window_width / 2;
             ball_y = window_height / 2;
             is_paused = true;
+            speed = 1.0; // Reiniciar la velocidad de la pelota
         }
 
         if (ball_x + ball_radius > window_width - paddle_margin - paddle_width / 2 &&
             ball_y > paddle2_y - paddle_height / 2 &&
             ball_y < paddle2_y + paddle_height / 2) {
             ball_dir_x = -ball_dir_x;
+            speed += 0.5; // Incrementar la velocidad de la pelota
         } else if (ball_x + ball_radius > window_width) {
             // La pelota pasó la paleta del jugador 2
             ball_x = window_width / 2;
             ball_y = window_height / 2;
             is_paused = true;
+            speed = 1.0; // Reiniciar la velocidad de la pelota
         }
 
         // Mover las paletas
@@ -205,7 +209,7 @@ void init(void) {
     sx = 1.0;
     sy = 1.0;
     squash = 0.9;
-    speed = 1.0;
+    speed = 2.0; // Velocidad inicial de la pelota
 
     // Inicializar las posiciones de las paletas
     paddle1_y = window_height / 2;
