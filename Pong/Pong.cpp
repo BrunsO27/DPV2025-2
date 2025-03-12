@@ -20,7 +20,7 @@ int score_right = 0; // Puntuación de la paleta derecha
 double paddle1_y, paddle2_y;
 double paddle_width;
 double paddle_height;
-const double paddle_margin = 20.0; // Distancia constante desde el borde de la ventana
+const double paddle_margin = 30.0; // Distancia constante desde el borde de la ventana (aumentado)
 const double paddle_speed = 10.0; // Velocidad de movimiento de las paletas
 
 // Estado de las teclas
@@ -61,8 +61,34 @@ void draw_text(const char* text, int x, int y) {
     }
 }
 
+void draw_divider() {
+    glColor3f(1.0, 1.0, 1.0);
+    glLineWidth(3.0); // Engrosar la línea divisoria
+    glBegin(GL_LINES);
+    glVertex2f(window_width / 2, 10); // Ajustar para que se corte con el borde
+    glVertex2f(window_width / 2, window_height - 10); // Ajustar para que se corte con el borde
+    glEnd();
+}
+
+void draw_border() {
+    glColor3f(1.0, 1.0, 1.0);
+    glLineWidth(3.0); // Engrosar la línea del borde
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(10, 10);
+    glVertex2f(window_width - 10, 10);
+    glVertex2f(window_width - 10, window_height - 10);
+    glVertex2f(10, window_height - 10);
+    glEnd();
+}
+
 void Display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
+
+    // Dibujar la línea divisoria
+    draw_divider();
+
+    // Dibujar el borde del campo
+    draw_border();
 
     // Dibujar la pelota
     draw_ball();
@@ -75,16 +101,16 @@ void Display(void) {
     std::string score_text_left = std::to_string(score_left);
     int text_width_left = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)score_text_left.c_str());
     int text_x_left = (window_width / 4) - (text_width_left / 2); // Centrar en la mitad izquierda
-    draw_text(score_text_left.c_str(), text_x_left, window_height - 30);
+    draw_text(score_text_left.c_str(), text_x_left, window_height - 50); // Separar del margen del campo
 
     // Dibujar la puntuación de la paleta derecha
     std::string score_text_right = std::to_string(score_right);
     int text_width_right = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)score_text_right.c_str());
     int text_x_right = (3 * window_width / 4) - (text_width_right / 2); // Centrar en la mitad derecha
-    draw_text(score_text_right.c_str(), text_x_right, window_height - 30);
+    draw_text(score_text_right.c_str(), text_x_right, window_height - 50); // Separar del margen del campo
 
     // Colisiones con las paredes
-    if (ball_y + ball_radius * sy > window_height || ball_y - ball_radius * sy < 0) {
+    if (ball_y + ball_radius * sy > window_height - 10 || ball_y - ball_radius * sy < 10) {
         ball_dir_y = -ball_dir_y;
         sy = sy * squash;
         if (sy < 0.8) {
@@ -97,7 +123,7 @@ void Display(void) {
         is_colliding = true;
         collision_timer = 0;
     }
-    if (ball_x + ball_radius * sx > window_width || ball_x - ball_radius * sx < 0) {
+    if (ball_x + ball_radius * sx > window_width - 10 || ball_x - ball_radius * sx < 10) {
         ball_dir_x = -ball_dir_x;
         sx = sx * squash;
         if (sx < 0.8) {
@@ -135,11 +161,11 @@ void update(int value) {
         ball_y += ball_dir_y * speed;
 
         // Asegurarse de que la pelota se mantenga dentro de los límites
-        if (ball_y - ball_radius < 0) {
-            ball_y = ball_radius;
+        if (ball_y - ball_radius < 10) {
+            ball_y = 10 + ball_radius;
             ball_dir_y = -ball_dir_y;
-        } else if (ball_y + ball_radius > window_height) {
-            ball_y = window_height - ball_radius;
+        } else if (ball_y + ball_radius > window_height - 10) {
+            ball_y = window_height - 10 - ball_radius;
             ball_dir_y = -ball_dir_y;
         }
 
@@ -149,7 +175,7 @@ void update(int value) {
             ball_y < paddle1_y + paddle_height / 2) {
             ball_dir_x = -ball_dir_x;
             speed += 0.5; // Incrementar la velocidad de la pelota
-        } else if (ball_x - ball_radius < 0) {
+        } else if (ball_x - ball_radius < 10) {
             // La pelota pasó la paleta del jugador 1
             ball_x = window_width / 2;
             ball_y = window_height / 2;
@@ -163,7 +189,7 @@ void update(int value) {
             ball_y < paddle2_y + paddle_height / 2) {
             ball_dir_x = -ball_dir_x;
             speed += 0.5; // Incrementar la velocidad de la pelota
-        } else if (ball_x + ball_radius > window_width) {
+        } else if (ball_x + ball_radius > window_width - 10) {
             // La pelota pasó la paleta del jugador 2
             ball_x = window_width / 2;
             ball_y = window_height / 2;
@@ -175,26 +201,26 @@ void update(int value) {
         // Mover las paletas
         if (key_w) {
             paddle1_y += paddle_speed;
-            if (paddle1_y + paddle_height / 2 > window_height) {
-                paddle1_y = window_height - paddle_height / 2;
+            if (paddle1_y + paddle_height / 2 > window_height - 10) {
+                paddle1_y = window_height - 10 - paddle_height / 2;
             }
         }
         if (key_s) {
             paddle1_y -= paddle_speed;
-            if (paddle1_y - paddle_height / 2 < 0) {
-                paddle1_y = paddle_height / 2;
+            if (paddle1_y - paddle_height / 2 < 10) {
+                paddle1_y = 10 + paddle_height / 2;
             }
         }
         if (key_up) {
             paddle2_y += paddle_speed;
-            if (paddle2_y + paddle_height / 2 > window_height) {
-                paddle2_y = window_height - paddle_height / 2;
+            if (paddle2_y + paddle_height / 2 > window_height - 10) {
+                paddle2_y = window_height - 10 - paddle_height / 2;
             }
         }
         if (key_down) {
             paddle2_y -= paddle_speed;
-            if (paddle2_y - paddle_height / 2 < 0) {
-                paddle2_y = paddle_height / 2;
+            if (paddle2_y - paddle_height / 2 < 10) {
+                paddle2_y = 10 + paddle_height / 2;
             }
         }
     }
@@ -214,8 +240,8 @@ void reshape(int w, int h) {
     glLoadIdentity();
 
     // Ajustar las dimensiones de las paletas
-    paddle_width = window_width * 0.03; // 3% del ancho de la ventana
-    paddle_height = window_height * 0.25; // 25% de la altura de la ventana
+    paddle_width = window_width * 0.02; // 2% del ancho de la ventana
+    paddle_height = window_height * 0.20; // 20% de la altura de la ventana
 
     // Ajustar el radio de la pelota
     ball_radius = window_width * 0.02; // 2% del ancho de la ventana
@@ -241,8 +267,8 @@ void init(void) {
     paddle2_y = window_height / 2;
 
     // Inicializar las dimensiones de las paletas
-    paddle_width = window_width * 0.03; // 3% del ancho de la ventana
-    paddle_height = window_height * 0.25; // 25% de la altura de la ventana
+    paddle_width = window_width * 0.02; // 2% del ancho de la ventana 
+    paddle_height = window_height * 0.20; // 20% de la altura de la ventana 
 
     // Inicializar el radio de la pelota
     ball_radius = window_width * 0.02; // 2% del ancho de la ventana
