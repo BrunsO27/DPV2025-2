@@ -30,7 +30,7 @@ bool key_up = false;
 bool key_down = false;
 
 void draw_ball() {
-    glColor3f(0.6, 0.3, 0.0);
+    glColor3f(1.0, 1.0, 1.0); // Cambiar el color de la pelota a blanco
     glPushMatrix();
     glTranslatef(ball_x, ball_y, 0);
     glScalef(sx, sy, 1.0);
@@ -252,7 +252,7 @@ void reshape(int w, int h) {
 }
 
 void init(void) {
-    glClearColor(0.0, 0.8, 0.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0); // Color de fondo negro
     ball_x = window_width / 2;
     ball_y = window_height / 2;
     ball_dir_x = 1;
