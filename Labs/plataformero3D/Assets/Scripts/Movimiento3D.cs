@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class Movimiento3D : MonoBehaviour
 {
+    public Transform boquilla;   
+    public GameObject zooka;
+    public GameObject bala;
     CharacterController cc;
     Animator anim;
     public Vector3 direccion;
@@ -12,6 +15,7 @@ public class Movimiento3D : MonoBehaviour
     public float velocidad = 5f;
     public float vertical;
     private float velocidadVertical = 0f; // Almacena la velocidad en Y
+    private bool shoot = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -57,5 +61,23 @@ public class Movimiento3D : MonoBehaviour
         // Aplicar movimiento y rotación
         cc.transform.Rotate(new Vector3(0, rotacion, 0));
         cc.Move(direccion * Time.deltaTime);
+
+        if (Input.GetKeyDown(KeyCode.K) && shoot)
+        {
+           
+            Instantiate(bala, boquilla.position, boquilla.rotation);
+            
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Zooka")
+        {
+            zooka.SetActive(true);
+            other.gameObject.SetActive(false);
+            this.shoot = true;
+            Debug.Log("Zooka");
+        }
     }
 }
