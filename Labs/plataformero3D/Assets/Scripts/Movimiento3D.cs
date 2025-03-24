@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class Movimiento3D : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class Movimiento3D : MonoBehaviour
     public float vertical;
     private float velocidadVertical = 0f; // Almacena la velocidad en Y
     private bool shoot = false;
+    public int numBala;
+    public TMP_Text balas;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -64,9 +67,9 @@ public class Movimiento3D : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.K) && shoot)
         {
-           
             Instantiate(bala, boquilla.position, boquilla.rotation);
-            
+            numBala++;
+            balas.text = numBala.ToString();
         }
     }
 
